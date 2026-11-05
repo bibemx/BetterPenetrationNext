@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework><AssemblyName>BetterPenetrationNext</AssemblyName><DefineConstants>KKS</DefineConstants>
+    <GameManaged>$(GameRoot)\KoikatsuSunshine_Data\Managed</GameManaged>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net46" Version="1.0.3" PrivateAssets="all"/>
+    <Reference Include="System.IO.Compression"/><Reference Include="System.Xml.Linq"/>
+    <Reference Include="System.Runtime.Serialization"/>
+    <Compile Include="../Next.Core/*.cs" Link="Core/%(Filename)%(Extension)"/>
+    <Compile Include="../Next.Unity/*.cs" Link="Unity/%(Filename)%(Extension)"/>
+    <Compile Include="../../tools/RuntimeProbe/Probe.cs" Link="Diagnostics/RuntimeProbe.cs"/>
+    <Compile Include="../../tests/SourceSelectionFixture.cs" Link="Tests/SourceSelectionFixture.cs"/>
+    <Compile Include="../../tests/ConfigDefaults/Program.cs" Link="Tests/DefaultProfileChecks.cs"/>
+    <Compile Include="../../vendor/BetterPenetration/Core_BetterPenetration/*.cs" Link="Upstream/Core/%(Filename)%(Extension)"/>
+    <Compile Include="../../vendor/BetterPenetration/KKS_BetterPenetration/*.cs" Link="Upstream/KKS/%(Filename)%(Extension)"/>
+    <Reference Include="$(GameManaged)\UnityEngine*.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GameManaged)\Assembly-CSharp.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GameManaged)\Assembly-CSharp-firstpass.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GameRoot)\BepInEx\core\BepInEx.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GameRoot)\BepInEx\core\0Harmony.dll"><Private>false</Private></Reference>
+    <Reference Include="$(GameRoot)\BepInEx\plugins\KKSAPI.dll"><Private>false</Private></Reference>
+  </ItemGroup>
+  <ItemGroup Condition="Exists('../../build/shader/next-xray.bundle')"><EmbeddedResource Include="../../build/shader/next-xray.bundle" LogicalName="BetterPenetrationNext.xray.bundle"/></ItemGroup>
+  <ItemGroup Condition="Exists('../../profiles/receiver-animated-path.json')"><EmbeddedResource Include="../../profiles/receiver-animated-path.json" LogicalName="BetterPenetrationNext.receiver-path.json"/></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="../../profiles/release-defaults.json" LogicalName="BetterPenetrationNext.release-defaults.json"/></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="../../profiles/channel/*.json" LogicalName="BetterPenetrationNext.channel.%(Filename)%(Extension)"/></ItemGroup>
+  <Target Name="ValidateGame" BeforeTargets="ResolveReferences"><Error Condition="!Exists('$(GameManaged)\UnityEngine.CoreModule.dll')" Text="Supply -p:GameRoot=KKS folder."/></Target>
+  <Target Name="OnlyOwnDll" AfterTargets="ResolveReferences"><ItemGroup><ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)"/></ItemGroup></Target>
+</Project>

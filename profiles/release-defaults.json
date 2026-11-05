@@ -1,0 +1,686 @@
+{
+  "Schema": 1,
+  "Id": "1.0.9-reactive-release",
+  "Version": "1.0.9",
+  "Status": "validated",
+  "Settings": [
+    {
+      "Section": "Female Options",
+      "Key": "Clipping Depth",
+      "Type": "Single",
+      "Value": "0.02"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Clipping Offset: Back Collision 0",
+      "Type": "Single",
+      "Value": "-0.04"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Clipping Offset: Back Collision 1",
+      "Type": "Single",
+      "Value": "0.02"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Clipping Offset: Back Collision 2",
+      "Type": "Single",
+      "Value": "0"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Clipping Offset: Front Collision 0",
+      "Type": "Single",
+      "Value": "-0.04"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Clipping Offset: Front Collision 1",
+      "Type": "Single",
+      "Value": "0.04"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Clipping Offset: Front Collision 2",
+      "Type": "Single",
+      "Value": "0.06"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Oral Push/Pull: Enable",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Oral Push/Pull: Max Pull",
+      "Type": "Single",
+      "Value": "0.006"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Oral Push/Pull: Max Push",
+      "Type": "Single",
+      "Value": "0.002"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Oral Push/Pull: Push/Pull Rate",
+      "Type": "Single",
+      "Value": "18"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Oral Push/Pull: Return Rate",
+      "Type": "Single",
+      "Value": "0.03"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Target Offset: Inner Mouth Target",
+      "Type": "Single",
+      "Value": "0"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Target Offset: Inner Vagina Target",
+      "Type": "Single",
+      "Value": "0"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Target Offset: Mouth Target",
+      "Type": "Single",
+      "Value": "0"
+    },
+    {
+      "Section": "Female Options",
+      "Key": "Target Offset: Vagina Target",
+      "Type": "Single",
+      "Value": "0"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Limit Penis Amount",
+      "Type": "Single",
+      "Value": "0.2"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Limit Penis Movement",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Penis Collider: Length Scale",
+      "Type": "Single",
+      "Value": "1"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Penis Collider: Radius Scale",
+      "Type": "Single",
+      "Value": "1"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Penis: Squish Girth Factor",
+      "Type": "Single",
+      "Value": "0.2"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Penis: Squish Length Factor",
+      "Type": "Single",
+      "Value": "0.6"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Penis: Squish Oral Girth",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Penis: Squish Threshold",
+      "Type": "Single",
+      "Value": "0.2"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Rotate Balls with Shaft",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Simplify Anal Calculation",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Simplify Oral Calculation",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Male 1 Options",
+      "Key": "Simplify Penetration Calculation",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Limit Penis Amount",
+      "Type": "Single",
+      "Value": "0.2"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Limit Penis Movement",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Penis Collider: Length Scale",
+      "Type": "Single",
+      "Value": "1"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Penis Collider: Radius Scale",
+      "Type": "Single",
+      "Value": "1"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Penis: Squish Girth Factor",
+      "Type": "Single",
+      "Value": "0.2"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Penis: Squish Length Factor",
+      "Type": "Single",
+      "Value": "0.6"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Penis: Squish Oral Girth",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Penis: Squish Threshold",
+      "Type": "Single",
+      "Value": "0.2"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Rotate Balls with Shaft",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Simplify Anal Calculation",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Simplify Oral Calculation",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Male 2 Options",
+      "Key": "Simplify Penetration Calculation",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Next",
+      "Key": "Mode",
+      "Type": "NextMode",
+      "Value": "SoftBody"
+    },
+    {
+      "Section": "Next",
+      "Key": "TransitionSeconds",
+      "Type": "Single",
+      "Value": "0.2"
+    },
+    {
+      "Section": "Next.Assets",
+      "Key": "PreparedZipmod",
+      "Type": "String",
+      "Value": "@game/mods/BetterPenetration/BPN.Reciever.Profundis.zipmod"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "ActiveContactList",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "AnimatedSeamProxy",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "ContactDamping",
+      "Type": "Single",
+      "Value": "5.419422"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "ContactMode",
+      "Type": "ContactMode",
+      "Value": "Bidirectional"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "DebugContacts",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "DebugTrajectory",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "GuideAngularSpeed",
+      "Type": "Single",
+      "Value": "2"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "MaxSourceDisplacement",
+      "Type": "Single",
+      "Value": "0.12"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "MaxTissueStrain",
+      "Type": "Single",
+      "Value": "4"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "MaximumGuideAngle",
+      "Type": "Single",
+      "Value": "0.35"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "MaximumSeamGapRatio",
+      "Type": "Single",
+      "Value": "0.05"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "PathContactTravel",
+      "Type": "Single",
+      "Value": "0.002"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "PathFile",
+      "Type": "String",
+      "Value": ""
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "PathMode",
+      "Type": "PathMode",
+      "Value": "SourceFollowsPath"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "PathResponse",
+      "Type": "Single",
+      "Value": "12"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "RecoveryTime",
+      "Type": "Single",
+      "Value": "4.5"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "RegionComplianceFile",
+      "Type": "String",
+      "Value": ""
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "ReleaseOnlyWhenSeparated",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "RequireMatchedGuideTarget",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "RodGuideBudgetFraction",
+      "Type": "Single",
+      "Value": "0.8"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "SourceCorrectionStrength",
+      "Type": "Single",
+      "Value": "0.35"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "SourceGuideShape",
+      "Type": "SourceGuideShape",
+      "Value": "SectionRig"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "TissueCompliance",
+      "Type": "Single",
+      "Value": "1E-07"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "TissueDeformationStrength",
+      "Type": "Single",
+      "Value": "1"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "TriangleHints",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Diagnostics",
+      "Key": "AutoSnapshot",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Diagnostics",
+      "Key": "ExportSnapshot",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Next.Diagnostics",
+      "Key": "LogPerformance",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Next.Diagnostics",
+      "Key": "ShowStatus",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Next.Performance",
+      "Key": "FixedHz",
+      "Type": "Single",
+      "Value": "90"
+    },
+    {
+      "Section": "Next.Performance",
+      "Key": "Iterations",
+      "Type": "Int32",
+      "Value": "6"
+    },
+    {
+      "Section": "Next.Performance",
+      "Key": "MaximumAdaptiveStep",
+      "Type": "Single",
+      "Value": "0.03333334"
+    },
+    {
+      "Section": "Next.Performance",
+      "Key": "MaximumSubsteps",
+      "Type": "Int32",
+      "Value": "3"
+    },
+    {
+      "Section": "Next.Performance",
+      "Key": "NormalsInterval",
+      "Type": "Int32",
+      "Value": "3"
+    },
+    {
+      "Section": "Next.Performance",
+      "Key": "Quality",
+      "Type": "PhysicsQuality",
+      "Value": "Balanced"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "BendCompliance",
+      "Type": "Single",
+      "Value": "0.02"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "ContactMarginRatio",
+      "Type": "Single",
+      "Value": "0.0005"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "ContactQueryRatio",
+      "Type": "Single",
+      "Value": "0.5"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "Damping",
+      "Type": "Single",
+      "Value": "8"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "MaximumOffsetRatio",
+      "Type": "Single",
+      "Value": "1.5"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "MaximumSpeedRatio",
+      "Type": "Single",
+      "Value": "3"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "PinCompliance",
+      "Type": "Single",
+      "Value": "1E-06"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "RecoverySeconds",
+      "Type": "Single",
+      "Value": "4.5"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "ShapeCompliance",
+      "Type": "Single",
+      "Value": "0.2"
+    },
+    {
+      "Section": "Next.Physics",
+      "Key": "StretchCompliance",
+      "Type": "Single",
+      "Value": "0.02"
+    },
+    {
+      "Section": "Next.PreparedMorphs",
+      "Key": "Canal_Length_plus_10mm",
+      "Type": "Single",
+      "Value": "0"
+    },
+    {
+      "Section": "Next.PreparedMorphs",
+      "Key": "Lumen_gap_plus_1mm",
+      "Type": "Single",
+      "Value": "0"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "DotDensity",
+      "Type": "Single",
+      "Value": "3"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "DotPatternEnabled",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "DotScale",
+      "Type": "Single",
+      "Value": "4"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "IncludeHiddenSource",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "OcclusionMode",
+      "Type": "OcclusionMode",
+      "Value": "AllSelected"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "OriginalTextureBlend",
+      "Type": "Single",
+      "Value": "1"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "ReceiverColor",
+      "Type": "Color",
+      "Value": "FF4400FF"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "ReceiverOpacity",
+      "Type": "Single",
+      "Value": "0.35"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "SourceColor",
+      "Type": "Color",
+      "Value": "00FFFFFF"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "SourceOpacity",
+      "Type": "Single",
+      "Value": "0.45"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "XRayEnabled",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.XRay",
+      "Key": "XRayTarget",
+      "Type": "XRayTarget",
+      "Value": "Both"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "AnatomicalReceiver",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "ReactiveRig",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Performance",
+      "Key": "BackgroundRig",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Contact",
+      "Key": "WholeSourceContainment",
+      "Type": "Boolean",
+      "Value": "true"
+    },
+    {
+      "Section": "Next.Diagnostics",
+      "Key": "DebugLandmarks",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Next.Receiver",
+      "Key": "CervixMaxDisplacement",
+      "Type": "Single",
+      "Value": "0.08"
+    },
+    {
+      "Section": "Next.Receiver",
+      "Key": "CervixFollowStrength",
+      "Type": "Single",
+      "Value": "1"
+    },
+    {
+      "Section": "Next.Receiver",
+      "Key": "CanalLengthScale",
+      "Type": "Single",
+      "Value": "1.384297"
+    },
+    {
+      "Section": "Next.Diagnostics",
+      "Key": "DebugReceiverLandmarks",
+      "Type": "Boolean",
+      "Value": "false"
+    },
+    {
+      "Section": "Next.Source",
+      "Key": "SourceLengthScale",
+      "Type": "Single",
+      "Value": "0.7727273"
+    },
+    {
+      "Section": "Next.Source",
+      "Key": "SourceWidthScale",
+      "Type": "Single",
+      "Value": "1"
+    }
+  ]
+}

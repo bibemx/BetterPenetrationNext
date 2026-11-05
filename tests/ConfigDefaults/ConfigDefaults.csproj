@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net6.0</TargetFramework><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BetterPenetrationNext"><HintPath>../../src/Next.Plugin/bin/Release/net46/BetterPenetrationNext.dll</HintPath></Reference>
+    <Reference Include="BepInEx"><HintPath>$(GameRoot)/BepInEx/core/BepInEx.dll</HintPath></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(GameRoot)/KoikatsuSunshine_Data/Managed/UnityEngine.dll</HintPath></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(GameRoot)/KoikatsuSunshine_Data/Managed/UnityEngine.CoreModule.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

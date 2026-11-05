@@ -1,0 +1,38 @@
+{
+  "Version": "1.0.9",
+  "AcceptanceDateLocal": "2026-11-05",
+  "TimeZone": "Asia/Irkutsk",
+  "UserAccepted": true,
+  "ReleaseDllSHA256": "677B1128A9F712A7449CA12CEF5F5308330D71EB49A570DC6C6AA0EF4DE4A0DC",
+  "ReceiverZipSHA256": "CD9A30E5B78D95080EBB7799B17124511A4DF5C5C650B9BF5C7054F737D3F7CC",
+  "CoreTestsPassed": 173,
+  "ManagedDefaultTestsPassed": 8,
+  "Native": {
+    "CleanConfiguration": {
+      "Passed": true,
+      "ChecksPassed": 2
+    },
+    "DeletedConfiguration": {
+      "Passed": true,
+      "ChecksPassed": 2
+    },
+    "NativeGeometry": {
+      "Passed": true,
+      "ChecksPassed": 18
+    }
+  },
+  "InstallerTransactions": [
+    "fresh install",
+    "upgrade with disabled original",
+    "byte-exact rollback",
+    "tampered package rejection"
+  ],
+  "RunningGameGuardPassed": true,
+  "GeometryPayloadUnchangedFromAcceptedAsset": true,
+  "MetadataChangesOnly": [
+    "manifest.xml",
+    "build-origin.json",
+    "uv-provenance.json"
+  ],
+  "Scope": "Publication configuration and native checks; previous instrumented scene timing used an earlier preset, see validation.md."
+}
