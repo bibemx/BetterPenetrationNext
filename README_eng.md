@@ -1,10 +1,9 @@
+# The project is completely vibe-coded, including this README — you can see the main reason behind the RAM price hike
 # BetterPenetrationNext 1.0.9 — KKS
 
 [Русский](README_rus.md) · [Download](https://github.com/bibemx/BetterPenetrationNext/releases)
 
-A reactive rig and local animated-mesh deformation module for Koikatsu Sunshine / Unity 2019.4. The project studies geometric constraints, deformable shells and skeletal animation. It is an approximate visual model; geometric tests do not constitute clinical validation.
-
-## Features
+A reactive rig and local animated-mesh deformation module for Koikatsu Sunshine / Unity 2019.4
 
 - **BPN** mode: Adaptive Mesh Landmarks, an oriented entrance plane R0 and a channel guide.
 - An attached Source base, preserved section lengths, and manual length/width multipliers applied as soon as the scene loads.
