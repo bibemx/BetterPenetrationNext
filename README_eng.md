@@ -8,7 +8,6 @@ A reactive rig and local animated-mesh deformation module for Koikatsu Sunshine 
 - **BPN** mode: Adaptive Mesh Landmarks, an oriented entrance plane R0 and a channel guide.
 - An attached Source base, preserved section lengths, and manual length/width multipliers applied as soon as the scene loads.
 - Independent Receiver sectors fitted to finite cuts of the actual open Source shell. A cached BVH is refitted without rebuilding topology or merging differently weighted seam identities.
-- A smooth terminal approach and bounded local cervical compression. Contact does not move the uterus or extend the channel; baseline channel length is a separate setting.
 - Entrance attachments, symmetric procedural displacements and smooth recovery after contact ends. The tested recovery setting is 4.5 seconds, a visualization parameter.
 - Textured X-Ray, separate Source/Receiver rendering and an optional dot indicator, without overwriting original materials.
 - **BP** mode runs the retained BetterPenetration controller inside this DLL. A separate original BP DLL must not run alongside it.
@@ -59,7 +58,7 @@ The same `release-defaults.json` is used by the installer and embedded in the DL
 | RecoveryTime | 4.5 |
 | X-Ray / settings | B / N |
 
-Dimensions are relative to the animated card model. These values were tested on one specific model pair and are not universal anatomical standards. The window exposes the current reactive rig settings; compatible internal legacy parameters remain in code but are hidden from the main UI. The prepared Receiver does not require an external `PathFile`.
+Dimensions are relative to the animated card model. These values were tested on one specific model pair and are not universal. The window exposes the current reactive rig settings; compatible internal legacy parameters remain in code but are hidden from the main UI. The prepared Receiver does not require an external `PathFile`.
 
 ## Rollback
 
