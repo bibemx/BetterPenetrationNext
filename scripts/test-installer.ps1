@@ -16,6 +16,10 @@ function Snapshot {
 foreach($relative in @('KoikatsuSunshine.exe','BepInEx\core\BepInEx.dll','BepInEx\core\0Harmony.dll','BepInEx\plugins\KKSAPI.dll','BepInEx\plugins\ModBoneImplantor.dll','BepInEx\plugins\KKS_UncensorSelector.dll','BepInEx\plugins\KKS_Sideloader.dll','BepInEx\plugins\KKS_ExtensibleSaveFormat.dll')){Put $relative ('fixture '+$relative)}
 Put 'BepInEx\plugins\BetterPenetration\KKS_BetterPenetration.dll' 'original controller'
 Put 'mods\BetterPenetration\BetterPenetrationNext-1.0.zipmod' 'original receiver'
+Put 'mods\BetterPenetration\BPN.Reciever.Profundis.zipmod' 'previous release receiver'
+Put 'mods\BetterPenetration\BPN.Profundis.zipmod' 'previous standalone receiver'
+Put 'mods\BetterPenetration\[KKS][Body][BPN] Profundis.zipmod' 'previous renamed receiver'
+Put 'mods\BetterPenetration\[KKS][Body][BPN] SAC Innie.zipmod' 'previous SAC receiver'
 Put 'mods\BetterPenetration\[KKS][Penis][BP] SoS.zipmod' 'original source unchanged'
 Put 'BepInEx\config\org.betterpenetration.next.cfg' "[Next.Contact]`nContactDamping = 3`n[Other]`nKeep = user setting`n"
 $before=Snapshot
@@ -24,6 +28,8 @@ $backupRoot=Join-Path $game 'BepInEx\BetterPenetrationNextBackups'
 $first=(Get-ChildItem -LiteralPath $backupRoot -Directory|Sort-Object LastWriteTimeUtc|Select-Object -Last 1).FullName
 Require (!(Test-Path -LiteralPath (Join-Path $game 'BepInEx\plugins\BetterPenetration\KKS_BetterPenetration.dll'))) 'Original BP remains active'
 Require (!(Test-Path -LiteralPath (Join-Path $game 'mods\BetterPenetration\BetterPenetrationNext-1.0.zipmod'))) 'Original receiver remains active'
+foreach($legacy in @('BPN.Reciever.Profundis.zipmod','BPN.Profundis.zipmod')){Require (!(Test-Path -LiteralPath (Join-Path $game ('mods\BetterPenetration\'+$legacy)))) ('Duplicate receiver remains active: '+$legacy)}
+foreach($model in @('[KKS][Body][BPN] Profundis.zipmod','[KKS][Body][BPN] SAC Innie.zipmod')){$relative='mods\BetterPenetration\'+$model;Require ((Get-FileHash -LiteralPath (Join-Path $game $relative)).Hash -eq (Get-FileHash -LiteralPath (Join-Path $package $relative)).Hash) ('Receiver payload differs: '+$model)}
 $cfg=Join-Path $game 'BepInEx\config\org.betterpenetration.next.cfg';$text=[IO.File]::ReadAllText($cfg)
 $profile=Get-Content -LiteralPath (Join-Path $package 'release-defaults.json') -Raw|ConvertFrom-Json
 $damping=($profile.Settings|Where-Object {$_.Section -eq 'Next.Contact' -and $_.Key -eq 'ContactDamping'}).Value

@@ -110,7 +110,7 @@ internal static class Program
             RigWorkerTests.Run(Test);
             StylizedMotionTests.Run(Test);
             ApproachAndDimensionsTests.Run(Test);
-            BilateralConstraintTests.Run(Test);EntranceAndUvTests.Run(Test);SourceSectionContactTests.Run(Test);
+            BilateralConstraintTests.Run(Test);EntranceAndUvTests.Run(Test);SourceSectionContactTests.Run(Test);ClosedEntranceTests.Run(Test);SurfaceFairingTests.Run(Test);
             var bench=PrimitiveMeshes.Grid(24,24,1,1); var solver=Solver(bench); var watch=Stopwatch.StartNew(); Step(solver,bench,Obstacle(),300); watch.Stop(); Console.WriteLine("INFO .NET core only: "+bench.Vertices.Length+" particles, 300 render frames / "+watch.ElapsedMilliseconds+" ms; not KKS FPS");
             Console.WriteLine("RESULT "+passed+" tests passed");
         }

@@ -19,6 +19,7 @@ namespace BetterPenetrationNext
         readonly Vector4[] restTangents,tangentOutput;
         readonly int[] normalVertices,normalTriangles;
         readonly bool[] affectedNormals;
+        readonly VisualNormalSeams normalSeams;
         readonly List<Vector3> nativeNormals=new List<Vector3>();
         readonly SimulationDefinition definition;
         readonly Transform[] bones;
@@ -30,6 +31,8 @@ namespace BetterPenetrationNext
         readonly int[] bindingGroups;
         public int SkinningGroupCount { get { return skinGroups.Count; } }
         public int NormalVertexCount { get { return normalVertices.Length; } }
+        public int NormalSeamGroupCount { get { return normalSeams.Count; } }
+        public double VerifyNormalSeams(Vector3[] positions,Vector3[] normals) { return normalSeams.Measure(positions,normals); }
         readonly float[] morphWeights;
         readonly Bounds originalBounds;
         int frame;
@@ -51,12 +54,13 @@ namespace BetterPenetrationNext
             if(data.XRayExcludedSubmeshes!=null) foreach(int submesh in data.XRayExcludedSubmeshes) if(submesh>=0&&submesh<Original.subMeshCount) foreach(int vertex in Original.GetTriangles(submesh)) if(!active[vertex]) affectedNormals[vertex]=false;
             var normalIndices=new List<int>(); var normalFaces=new List<int>(); for(int i=0;i<rest.Length;i++) if(affectedNormals[i]) normalIndices.Add(i);
             for(int t=0;t<triangles.Length;t+=3) if(affectedNormals[triangles[t]]||affectedNormals[triangles[t+1]]||affectedNormals[triangles[t+2]]) { normalFaces.Add(triangles[t]); normalFaces.Add(triangles[t+1]); normalFaces.Add(triangles[t+2]); }
-            normalVertices=normalIndices.ToArray(); normalTriangles=normalFaces.ToArray(); AccumulateNormals(rest,restNormalSums); foreach(int vertex in normalVertices) restNormalSums[vertex]=restNormalSums[vertex].normalized;
+            normalVertices=normalIndices.ToArray(); normalTriangles=normalFaces.ToArray(); AccumulateNormals(rest,restNormalSums);var restAreaSums=(Vector3[])restNormalSums.Clone(); foreach(int vertex in normalVertices) restNormalSums[vertex]=UnitNormal(restNormalSums[vertex]);
             var core=new Vec3[rest.Length]; for(int i=0;i<rest.Length;i++) core[i]=AnimationAdapter.ToCore(rest[i]);
             if(SimulationDefinition.Signature(core,Original.triangles)!=data.VisualMeshSignature) throw new ArgumentException("Prepared visual mesh signature differs from its simulation mapping.");
             bones=renderer.bones; bindposes=Original.bindposes; if(bones.Length!=bindposes.Length) throw new ArgumentException("Incomplete visual rig."); boneMatrices=new Matrix4x4[bones.Length];
             var counts=Original.GetBonesPerVertex(); var all=Original.GetAllBoneWeights(); offsets=new int[rest.Length+1]; indices=new int[all.Length]; weights=new double[all.Length]; int cursor=0;
             for(int i=0;i<rest.Length;i++) { offsets[i]=cursor; for(int j=0;j<counts[i];j++) { var w=all[cursor]; indices[cursor]=w.boneIndex; weights[cursor]=w.weight; cursor++; } } offsets[rest.Length]=cursor;
+            normalSeams=new VisualNormalSeams(Original,data,rest,restNormals,restAreaSums,restNormalSums,normalVertices,offsets,indices,weights);
             bindingGroups=new int[definition.Bindings.Length]; var groups=new Dictionary<ulong,List<int>>();
             for(int b=0;b<bindingGroups.Length;b++)
             {
@@ -107,17 +111,19 @@ namespace BetterPenetrationNext
             {
                 // Native recomputation wins for large affected regions in measured
                 // KKS Mono runs. Restore all unmodified authored normals afterwards.
-                if(normalTriangles.Length>12000&&uvDuplicates.Length==0)
+                bool nativeRecalculation=normalTriangles.Length>12000&&uvDuplicates.Length==0;
+                if(nativeRecalculation)
                 {
                     working.RecalculateNormals(); working.GetNormals(nativeNormals);
-                    for(int vertex=0;vertex<rest.Length;vertex++)if(affectedNormals[vertex])TransportNormal(vertex,nativeNormals[vertex]);else normalOutput[vertex]=restNormals[vertex];
+                    for(int vertex=0;vertex<rest.Length;vertex++)if(affectedNormals[vertex]){normalSums[vertex]=nativeNormals[vertex];TransportNormal(vertex,nativeNormals[vertex]);}else normalOutput[vertex]=restNormals[vertex];
                 }
                 else
                 {
                     foreach(int vertex in normalVertices) normalSums[vertex]=Vector3.zero;
                     AccumulateNormals(output,normalSums);
-                    foreach(int vertex in normalVertices)TransportNormal(vertex,normalSums[vertex].normalized);
+                    foreach(int vertex in normalVertices)TransportNormal(vertex,UnitNormal(normalSums[vertex]));
                 }
+                normalSeams.Apply(output,normalSums,nativeRecalculation,restNormals,restTangents,normalOutput,tangentOutput);
                 VisualUvRemap.CopyDuplicates(normalOutput,rest.Length,uvDuplicates);working.normals=normalOutput;
                 if(tangentOutput.Length==output.Length){VisualUvRemap.CopyDuplicates(tangentOutput,rest.Length,uvDuplicates);working.tangents=tangentOutput;}
             }
@@ -129,6 +135,13 @@ namespace BetterPenetrationNext
             if(geometric.sqrMagnitude<1e-12){normalOutput[vertex]=restNormals[vertex];return;}
             var rotation=Quaternion.FromToRotation(restNormalSums[vertex],geometric);normalOutput[vertex]=(rotation*restNormals[vertex]).normalized;
             if(tangentOutput.Length==output.Length){var t=restTangents[vertex];Vector3 q=rotation*new Vector3(t.x,t.y,t.z);tangentOutput[vertex]=new Vector4(q.x,q.y,q.z,t.w);}
+        }
+        static Vector3 UnitNormal(Vector3 value)
+        {
+            // Vector3.normalized drops area sums below 1e-5. The prepared
+            // tissue contains many valid sub-millimetre triangles; normalize
+            // their direction independently of the model's length scale.
+            return AnimationAdapter.ToUnity(AnimationAdapter.ToCore(value).Normalized);
         }
         void AccumulateNormals(Vector3[] positions,Vector3[] sums)
         {

@@ -43,5 +43,10 @@ namespace BetterPenetrationNext.Core
             int first=Math.Min(Directions-1,(int)coordinate),second=(first+1)%Directions;double blend=coordinate-first;
             return fields[first].Radius(section,t)*(1-blend)+fields[second].Radius(section,t)*blend;
         }
+        public double ContactRadius(int section,double radians)
+        {
+            double coordinate=radians*Directions/(2*Math.PI);coordinate-=Math.Floor(coordinate/Directions)*Directions;int first=Math.Min(Directions-1,(int)coordinate),second=(first+1)%Directions;double t=coordinate-first;
+            return required[first][section]*(1-t)+required[second][section]*t;
+        }
     }
 }

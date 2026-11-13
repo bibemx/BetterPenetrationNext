@@ -17,10 +17,10 @@ $profilePath=Join-Path $package 'release-defaults.json';$profile=Read-ReleaseDef
 if($profile.Version -ne '1.0.9' -or $profile.Status -ne 'validated'){throw 'Wrong release defaults'}
 $sourceDll=Join-Path $package 'BepInEx\plugins\BetterPenetrationNext.dll'
 if((Get-EmbeddedDefaultsHash $sourceDll) -ne (Get-FileHash -LiteralPath $profilePath).Hash){throw 'DLL/defaults mismatch'}
-$writes=@('BepInEx\plugins\BetterPenetrationNext.dll','BepInEx\config\org.betterpenetration.next.cfg','mods\BetterPenetration\BPN.Reciever.Profundis.zipmod')
+$writes=@('BepInEx\plugins\BetterPenetrationNext.dll','BepInEx\config\org.betterpenetration.next.cfg','mods\BetterPenetration\[KKS][Body][BPN] Profundis.zipmod','mods\BetterPenetration\[KKS][Body][BPN] SAC Innie.zipmod')
 $disable=@($dlls|Where-Object Name -Match '^(KKS_BetterPenetration|BetterPenetration|KKS_BetterPenetrationEnhanced)\.dll$'|ForEach-Object FullName)
 $mods=Join-Path $game 'mods'
-if(Test-Path -LiteralPath $mods){$disable+=@(Get-ChildItem -LiteralPath $mods -Recurse -File -Filter 'BetterPenetrationNext-1.0.zipmod'|ForEach-Object FullName)}
+if(Test-Path -LiteralPath $mods){$disable+=@(Get-ChildItem -LiteralPath $mods -Recurse -File|Where-Object {$_.Name -in @('BetterPenetrationNext-1.0.zipmod','BPN.Reciever.Profundis.zipmod','BPN.Profundis.zipmod')}|ForEach-Object FullName)}
 $pairs=@();foreach($path in $disable){$relative=$path.Substring($game.Length+1);$pairs+=@{Original=$relative;Disabled=($relative+'.bpn-disabled-'+[guid]::NewGuid().ToString('N'))}}
 $targets=@($writes)+@($pairs|ForEach-Object {$_.Original;$_.Disabled})
 $backup=Join-Path $game ('BepInEx\BetterPenetrationNextBackups\1.0.9-'+[guid]::NewGuid().ToString('N'))
@@ -32,7 +32,7 @@ $record|ConvertTo-Json -Depth 8|Set-Content -LiteralPath (Join-Path $backup 'ins
 try{
  Assert-TargetGameClosed $game
  foreach($pair in $pairs){Move-Item -LiteralPath (Join-Path $game $pair.Original) -Destination (Join-Path $game $pair.Disabled)}
- foreach($relative in @($writes[0],$writes[2])){$target=Join-Path $game $relative;New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force|Out-Null;Copy-Item -LiteralPath (Join-Path $package $relative) -Destination $target -Force;if((Get-FileHash -LiteralPath $target).Hash -ne (Get-FileHash -LiteralPath (Join-Path $package $relative)).Hash){throw 'Installed file differs from package'}}
+ foreach($relative in @($writes[0],$writes[2],$writes[3])){$target=Join-Path $game $relative;New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force|Out-Null;Copy-Item -LiteralPath (Join-Path $package $relative) -Destination $target -Force;if((Get-FileHash -LiteralPath $target).Hash -ne (Get-FileHash -LiteralPath (Join-Path $package $relative)).Hash){throw 'Installed file differs from package'}}
  Write-ReleaseDefaults (Join-Path $game $writes[1]) $profile $game
  # KeyboardShortcut converters are registered by BepInEx inside Unity. Keep
  # these UI defaults outside the numerical profile; they also match Menu.cs.

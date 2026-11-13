@@ -14,6 +14,7 @@ namespace BetterPenetrationNext.Core
         public Vec3 SourceRoot; public Linear3 SourceFrame; public int Frame; public double Dt,PosedSize;
         public bool SourceFollowsPath,HasSource=true,WholeSource=true;
         public double CervixMaxDisplacement=.025,CervixFollowStrength=1,CanalLengthScale=1;
+        public double EntranceContactDepth;
         public double MaxSource=.12,MaxStrain=4,SourceCompliance=.35,TissueStrength=1,Compliance=1e-7,Response=12,Recovery=4.5,MaximumOffsetRatio=1.5;
         public ReactiveRigInput(int bones,int morphs,int source){Bones=new Linear3[bones];Translation=new Vec3[bones];Morph=new double[morphs];Source=new Vec3[source];}
     }
@@ -22,6 +23,9 @@ namespace BetterPenetrationNext.Core
         public readonly Vec3[] Offsets,FullWorld,Physical,SourceOffsets,SourceWorld,Path,LandmarkPoints;
         public int LandmarkCount,ReceiverLandmarkCount;public bool ReceiverActive,EntryContact,SourceAdmitted;public double ReceiverSpacing,CanalExtension;
         public readonly Vec3[] ReceiverLandmarkPoints=new Vec3[ReceiverAdaptiveLandmarks.Capacity*5],ReceiverSourcePairs=new Vec3[ReceiverAdaptiveLandmarks.Capacity],ExternalLandmarkPoints=new Vec3[5];
+        public readonly double[] EntranceContactRadii=new double[ReceiverRadialField.Directions];
+        public readonly double[] EntranceProxyRadii=new double[EntranceContactProxy.Slices*ReceiverRadialField.Directions];public double EntranceContactDepth;
+        public Vec3 EntranceCentreLocal,EntranceNormalLocal,EntranceSideLocal;public bool EntranceProfileAvailable;
         public int Frame,Contacts,SectionTests,TriangleTests,ActiveSections,ContainedVertices,EngagedVertices,SourceVertices,WorkerThread,LimitingEdge;
         public double CaptureMs,PathMs,ContactMs,TransferMs,TotalMs,MaximumStrain,MaximumPrimaryStrain,MaterialBlend,MaxSourceMovement,MaximumResidual,EntranceRadius,RequiredEntranceRadius,RecoveryFraction;
         public Linear3 Carrier,SourceFrame; public Vec3 CarrierTranslation;
@@ -62,6 +66,8 @@ namespace BetterPenetrationNext.Core
         readonly double[] collarSeamBlend;readonly bool[] collarAnchors;
         readonly ReceiverContactPhase contactPhase=new ReceiverContactPhase();readonly ReceiverSectionField sectionField;
         readonly ReceiverRadialField radialField;readonly SourceSectionContacts sourceSectionContacts;bool baselineMapping;
+        readonly ReceiverRadialField entranceContactField=new ReceiverRadialField(EntranceContactProxy.Slices);
+        readonly double[] entranceContactBase=new double[EntranceContactProxy.Slices];readonly Vec3[] entranceContactCentres=new Vec3[EntranceContactProxy.Slices];
         public bool FiniteSurfaceCuts=true,CurrentContactProfile=true;
         readonly double[] fieldRadii,savedFieldRadii;readonly Vec3[] materialTargets;Vec3 lengthExtension;double sourceSpacing;
         public readonly bool[] SourceAttachmentMask;public readonly double[] ReceiverOwnership;
@@ -809,8 +815,16 @@ namespace BetterPenetrationNext.Core
             {
                 sourceSectionContacts.Refit(sourceCorrected);
                 for(int s=0;s<targets.Length;s++)sourceSectionContacts.Include(radialField,s,targets[s],newTangents[s],newX[s],Vec3.Cross(newTangents[s],newX[s]),input.PosedSize*.0025);
+                if(input.EntranceContactDepth>0)
+                {
+                    entranceContactField.Begin(entranceContactBase);
+                    for(int s=0;s<entranceContactCentres.Length;s++){double axial=input.EntranceContactDepth*(-1+1.3*s/(entranceContactCentres.Length-1));entranceContactCentres[s]=targets[0]+newTangents[0]*axial;sourceSectionContacts.Include(entranceContactField,s,entranceContactCentres[s],newTangents[0],newX[0],Vec3.Cross(newTangents[0],newX[0]),input.PosedSize*.0025);}
+                    for(int s=0;s<entranceContactCentres.Length;s++)for(int k=0;k<ReceiverRadialField.Directions;k++)output.EntranceProxyRadii[s*ReceiverRadialField.Directions+k]=entranceContactField.ContactRadius(s,k*2*Math.PI/ReceiverRadialField.Directions);
+                }
                 output.TriangleTests+=sourceSectionContacts.TriangleTests;
             }
+            output.EntranceContactDepth=input.EntranceContactDepth;
+            if(input.EntranceContactDepth<=0||!input.HasSource||!(entryContact||admitted))Array.Clear(output.EntranceProxyRadii,0,output.EntranceProxyRadii.Length);
             for(int i=0;!FiniteSurfaceCuts&&i<sourceCorrected.Length&&input.HasSource;i++)
             {
                 if(!sourceEntered[i]||!(entryContact||admitted))continue;Vec3 p=sourceCorrected[i];if(Vec3.Dot(p-targets[targets.Length-1],newTangents[newTangents.Length-1])>input.PosedSize*.002)continue;double best=double.PositiveInfinity;int span=0;
@@ -827,6 +841,18 @@ namespace BetterPenetrationNext.Core
             // decaying radius from another side/phase caused opposite-wall
             // dilation. Inactive recovery is owned by contactPhase/MapReceiver.
             radialField.Update(targets,dt,input.Response,CurrentContactProfile&&contactPhase.Active);
+            // Publish the actual, directional contact demand before material
+            // limiting. The closed exterior must not use a radius that the
+            // inner-wall guard has already reduced. The worker owns the field;
+            // only this immutable snapshot crosses to Unity's upload stage.
+            Linear3 entryInverse;output.EntranceProfileAvailable=chart!=null&&input.Bones[root].TryInverse(out entryInverse);
+            if(output.EntranceProfileAvailable)
+            {
+                input.Bones[root].TryInverse(out entryInverse);
+                output.EntranceCentreLocal=entryInverse.Multiply(targets[0]-input.Translation[root]);output.EntranceNormalLocal=entryInverse.Multiply(newTangents[0]);output.EntranceSideLocal=entryInverse.Multiply(newX[0]);
+                for(int k=0;k<output.EntranceContactRadii.Length;k++)output.EntranceContactRadii[k]=radialField.Radius(0,0,k*2*Math.PI/output.EntranceContactRadii.Length);
+            }
+            else Array.Clear(output.EntranceContactRadii,0,output.EntranceContactRadii.Length);
             output.EntryContact=entryContact;output.SourceAdmitted=admitted;output.ReceiverActive=contactPhase.Active;
             for(int s=0;s<fieldRadii.Length;s++)fieldRadii[s]=baseRadius[s]*scale[s];sectionField.Update(targets,fieldRadii);
 

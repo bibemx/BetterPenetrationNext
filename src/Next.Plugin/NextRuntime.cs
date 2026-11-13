@@ -18,6 +18,7 @@ namespace BetterPenetrationNext
     {
         sealed class PreparedBody : IDisposable
         {
+            public PreparedReceiverPackage Package;
             public ChaControl Character;
             public MeshDeformationBinding Binding;
             public AnimationAdapter Animation;
@@ -32,6 +33,7 @@ namespace BetterPenetrationNext
             public Vec3[] RigOffsets,RigSourceOffsets;
             public SnapshotSourceDeformation RigSourceDeformation;
             public NativeEntranceContactRig EntranceContactRig;
+            public NativeClosedEntranceBinding ClosedEntrance;
             public OrientedEntryFrame EntryFrame;
             public InextensibleSourceRig RigSourceRod; public Vec3[] RigRebasedSource;
             public SourceDimensions SourceDimensions;
@@ -127,6 +129,23 @@ namespace BetterPenetrationNext
         readonly List<LocalContactSurface> regions=new List<LocalContactSurface>();
         readonly SoftBodySettings settings=new SoftBodySettings();
         SimulationDefinition definition;
+        readonly Dictionary<string,PreparedReceiverPackage> receiverPackages=new Dictionary<string,PreparedReceiverPackage>(StringComparer.Ordinal);
+        void ReloadReceiverPackages()
+        {
+            receiverPackages.Clear();definition=null;
+            string configured=packagePath.Value;
+            string directory=System.IO.Path.GetDirectoryName(configured);
+            string renamed=System.IO.Path.Combine(directory,"[KKS][Body][BPN] Profundis.zipmod");
+            string legacy=System.IO.Path.Combine(directory,"BPN.Reciever.Profundis.zipmod");
+            string primary=System.IO.File.Exists(configured)?configured:System.IO.File.Exists(renamed)?renamed:legacy;
+            var seen=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach(string path in new[]{primary,renamed,System.IO.Path.Combine(directory,"[KKS][Body][BPN] SAC Innie.zipmod")})
+            {
+                if(!System.IO.File.Exists(path)||!seen.Add(System.IO.Path.GetFullPath(path)))continue;
+                try{var package=PreparedReceiverPackage.Load(path);if(!receiverPackages.ContainsKey(package.Guid))receiverPackages.Add(package.Guid,package);if(definition==null)definition=package.Definition;}
+                catch(Exception e){log.LogWarning("NEXT_PACKAGE rejected "+System.IO.Path.GetFileName(path)+": "+e.Message);}
+            }
+        }
         ManualLogSource log;
         double nextDiscovery;
         bool dirty;
@@ -211,7 +230,7 @@ namespace BetterPenetrationNext
             mode.SettingChanged+=(s,e)=> { transition.Request((int)mode.Value); if(!contactConfigurationChanging) { contactConfigurationChanging=true; contactMode.Value=mode.Value==NextMode.Original?ContactMode.Original:contactMode.Value==ContactMode.Original?ContactMode.OneWay:contactMode.Value; contactConfigurationChanging=false; } }; packagePath.SettingChanged+=(s,e)=>dirty=true;
             if(contactMode.Value==ContactMode.Original&&mode.Value!=NextMode.Original) mode.Value=NextMode.Original;
             else if(contactMode.Value!=ContactMode.Original&&mode.Value==NextMode.Original) { mode.Value=NextMode.Hybrid; transition.Request((int)mode.Value); }
-            try { UncensorIntegration.Initialize(); definition=UncensorIntegration.LoadDefinition(packagePath.Value); Status=definition==null?"Awaiting user-prepared model package":"Prepared model metadata loaded"; }
+            try { UncensorIntegration.Initialize(); ReloadReceiverPackages(); Status=definition==null?"Awaiting user-prepared model package":"Prepared model metadata loaded"; }
             catch(Exception e) { Status="Prepared model rejected: "+e.Message; log.LogWarning(Status); }
             SceneManager.sceneUnloaded+=SceneUnloaded;
             hooks=new Harmony("org.betterpenetration.next.simulation");
@@ -259,7 +278,8 @@ namespace BetterPenetrationNext
         }
         void Record(DanAgent source,CollisionAgent target)
         {
-            if(definition==null||UncensorIntegration.EffectiveGuid(target.m_collisionCharacter)!=definition.BodyGuid) return;
+            string guid=UncensorIntegration.EffectiveGuid(target.m_collisionCharacter);
+            if(guid==null||!receiverPackages.ContainsKey(guid)) return;
             var item=EnsureSource(source);if(item==null)return;
             item.Target=target.m_collisionCharacter;item.TargetAgent=target;item.LastSeen=Time.unscaledTime;BoneConstraintController.UpdateDynamicBones(target);
         }
@@ -305,30 +325,34 @@ namespace BetterPenetrationNext
         void Discover()
         {
             if(definition==null) return;
-            retireBodies.Clear(); foreach(var entry in bodies) if(entry.Value.Character==null||!entry.Value.Binding.Alive||UncensorIntegration.EffectiveGuid(entry.Value.Character)!=definition.BodyGuid) retireBodies.Add(entry.Key);
+            retireBodies.Clear(); foreach(var entry in bodies) if(entry.Value.Character==null||!entry.Value.Binding.Alive||UncensorIntegration.EffectiveGuid(entry.Value.Character)!=entry.Value.Package.Guid) retireBodies.Add(entry.Key);
             foreach(int key in retireBodies) Retire(key);
             foreach(var character in Resources.FindObjectsOfTypeAll<ChaControl>())
             {
-                if(character==null||!character.gameObject.scene.IsValid()||UncensorIntegration.EffectiveGuid(character)!=definition.BodyGuid) continue;
+                if(character==null||!character.gameObject.scene.IsValid()) continue;
+                PreparedReceiverPackage package;string guid=UncensorIntegration.EffectiveGuid(character);
+                if(guid==null||!receiverPackages.TryGetValue(guid,out package))continue;
                 int id=character.GetInstanceID(); if(bodies.ContainsKey(id)) continue;
                 SkinnedMeshRenderer visual=character.rendBody as SkinnedMeshRenderer; if(visual==null||visual.sharedMesh==null) continue;
                 MeshDeformationBinding binding=null;
                 PreparedMaterials materials=null;
                 try
                 {
-                    materials=new PreparedMaterials(visual,packagePath.Value);
-                    bool anatomical=UseAnatomicalReceiver;if(anatomical)LoadChannelResources();var physical=anatomical?channelDefinition:definition;
-                    if(anatomical){int nativeInfluences=NativeSkinContract.Verify(physical,visual);nativeInfluences=Math.Max(nativeInfluences,NativeSkinContract.Verify(supportDefinition,visual));log.LogInfo("NEXT_NATIVE_SKIN verified complete influences; maximum="+nativeInfluences);}
-                    binding=new MeshDeformationBinding(visual,anatomical?supportDefinition:definition); var animation=new AnimationAdapter(physical,visual); animation.Capture(null);
+                    materials=new PreparedMaterials(visual,package.FilePath);
+                    bool anatomical=UseAnatomicalReceiver;var physical=anatomical?package.Physical:package.Definition;
+                    if(anatomical){int nativeInfluences=NativeSkinContract.Verify(physical,visual);nativeInfluences=Math.Max(nativeInfluences,NativeSkinContract.Verify(package.Support,visual));log.LogInfo("NEXT_NATIVE_SKIN verified complete influences; maximum="+nativeInfluences);}
+                    binding=new MeshDeformationBinding(visual,anatomical?package.Support:package.Definition); var animation=new AnimationAdapter(physical,visual); animation.Capture(null);
                     var solver=new SoftBodySolver(new SimulationTopology(physical.Rest,physical.Triangles,physical.AllowJunctions),physical.PinWeights); solver.Reset(animation.Anchors);
-                    var body=new PreparedBody { Character=character,Binding=binding,Animation=animation,Solver=solver,Materials=materials,Snapshot=binding.XRaySnapshot,AnatomicalConfigured=anatomical,ReferenceAnimation=anatomical?new AnimationAdapter(definition,visual):null,EmptyAnatomicalOffsets=anatomical?new Vec3[supportDefinition.Rest.Length]:null }; bodies.Add(id,body); ApplyMorphSettings(body);
-                    log.LogInfo("NEXT_BOUND "+visual.name+" simulationParticles="+physical.Rest.Length+" anatomical="+anatomical);
+                    var body=new PreparedBody { Package=package,Character=character,Binding=binding,Animation=animation,Solver=solver,Materials=materials,Snapshot=binding.XRaySnapshot,AnatomicalConfigured=anatomical,ReferenceAnimation=anatomical?new AnimationAdapter(package.Definition,visual):null,EmptyAnatomicalOffsets=anatomical?new Vec3[package.Support.Rest.Length]:null }; bodies.Add(id,body); ApplyMorphSettings(body);
+                    if(anatomical&&package.ClosedEntrance!=null)body.ClosedEntrance=new NativeClosedEntranceBinding(visual,package.Support,package.Physical,package.Contours,package.ClosedEntrance);
+                    log.LogInfo("NEXT_BOUND "+visual.name+" package="+package.Guid+" simulationParticles="+physical.Rest.Length+" anatomical="+anatomical+" closedEntrance="+(body.ClosedEntrance!=null));
                 }
                 catch(Exception e) { if(binding!=null) binding.Dispose(); if(materials!=null) materials.Dispose(); log.LogWarning("Prepared binding rejected: "+e.Message); }
             }
         }
         void ApplyMorphSettings(PreparedBody body)
         {
+            var definition=body.Package.Definition;
             if(definition.Morphs==null) return;
             foreach(var morph in definition.Morphs)
             {
@@ -356,7 +380,7 @@ namespace BetterPenetrationNext
             {
                 if(transition.Advance(Math.Max(0,Time.unscaledDeltaTime),Math.Max(0,transitionSeconds.Value))) { Clear(); nextDiscovery=0; }
                 if(dirty)
-                { Clear(); dirty=false; definition=UncensorIntegration.LoadDefinition(packagePath.Value);loadedPath=null;pathProfile=null; }
+                { Clear(); dirty=false; ReloadReceiverPackages();loadedPath=null;pathProfile=null; }
                 if(Time.unscaledTime>=nextDiscovery) { nextDiscovery=Time.unscaledTime+0.5; DiscoverSourceAgents();Discover(); }
                 UpdateXray();
                 if(Mode==NextMode.Original) return;
@@ -413,7 +437,8 @@ namespace BetterPenetrationNext
                     var body=item.Value;
                     try
                     {
-                        if(body.Character==null||!body.Binding.Alive||UncensorIntegration.EffectiveGuid(body.Character)!=definition.BodyGuid) { retireBodies.Add(item.Key); continue; }
+                        if(body.Character==null||!body.Binding.Alive||UncensorIntegration.EffectiveGuid(body.Character)!=body.Package.Guid) { retireBodies.Add(item.Key); continue; }
+                        settings.PreserveVolume=body.Package.Definition.PreserveVolume;
                         long captureStart=Stopwatch.GetTimestamp(); body.Animation.Capture(body.AnatomicalConfigured?null:body.Solver); measurement.Capture+=(Stopwatch.GetTimestamp()-captureStart)*1000.0/Stopwatch.Frequency;
                         if(body.AnatomicalConfigured){UpdateAnatomicalBody(body,policy.NormalsInterval,ref measurement);continue;}
                         SoftBodySolver.LocalGuardEnabled=false;SoftBodySolver.IncrementalMaterialGuard=false;SoftBodySolver.ContinuousMaterialSelfContact=false;SoftBodySolver.TransferTissueSelfReaction=false;
@@ -505,7 +530,7 @@ namespace BetterPenetrationNext
             if(pathProfile==null) return null;
             if(body.RejectedPathProfile==pathProfile) return null;
             if(body.PathProfile!=pathProfile) {
-                try { pathProfile.Validate(definition); }
+                try { pathProfile.Validate(body.Package.Definition); }
                 catch(ArgumentException e) { body.RejectedPathProfile=pathProfile; log.LogWarning("NEXT_PATH disabled: "+e.Message); return null; }
             }
             var matrix=body.Binding.Renderer.transform.localToWorldMatrix;

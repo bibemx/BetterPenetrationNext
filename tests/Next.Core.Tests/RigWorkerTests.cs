@@ -13,6 +13,11 @@ internal static class RigWorkerTests
 
     public static void Run(Action<string,Action> test)
     {
+        test("Worker publishes a separate immutable directional entrance profile and its carrier frame",()=>{
+            using(var worker=new ReactiveRigWorker((input,output)=>{output.Frame=input.Frame;output.EntranceContactDepth=input.Dt;output.EntranceProxyRadii[95]=input.Frame;output.EntranceProfileAvailable=true;output.EntranceCentreLocal=new Vec3(1,2,input.Frame);output.EntranceNormalLocal=new Vec3(0,0,1);output.EntranceSideLocal=new Vec3(1,0,0);for(int i=0;i<16;i++)output.EntranceContactRadii[i]=input.Frame+i;},2,1,1,4,2,3)){
+                var frame=Input();var first=Output();Require(worker.Submit(frame),"Submit rejected");Wait(()=>worker.TryRead(first),"Missing profile");Require(first.EntranceProfileAvailable&&first.EntranceCentreLocal.Z==7&&first.EntranceNormalLocal.Z==1&&first.EntranceSideLocal.X==1&&first.EntranceContactRadii[15]==22&&first.EntranceProxyRadii[95]==7&&first.EntranceContactDepth==.025,"Frame/profile was lost");first.EntranceContactRadii[0]=99;frame.Frame=8;Require(worker.Submit(frame),"Next submit rejected");var second=Output();Wait(()=>worker.TryRead(second),"Missing next profile");Require(second.EntranceContactRadii[0]==8&&first.EntranceContactRadii[0]==99,"Consumer aliases worker profile");
+            }
+        });
         test("Worker rejects an invalid landmark count before changing an unread snapshot",()=>{
             using(var worker=new ReactiveRigWorker((input,output)=>{
                 output.Frame=input.Frame;output.Offsets[0]=new Vec3(input.Frame,0,0);output.ReceiverLandmarkCount=input.Frame==7?1:int.MaxValue;

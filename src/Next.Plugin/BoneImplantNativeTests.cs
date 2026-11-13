@@ -31,7 +31,7 @@ namespace BetterPenetrationNext
                 var holder=new GameObject("Inactive neutral transplant host");holder.SetActive(false);holder.transform.SetParent(root.transform,false);
                 try
                 {
-                    var prefab=bundle.LoadAsset<GameObject>(receiver?"p_cf_body_bpn":"sos_dick");Require(prefab!=null,"actual model prefab resolves: "+name);
+                    var prefab=bundle.LoadAsset<GameObject>(receiver?PreparedReceiverPackage.Load(archive).Asset:"sos_dick");Require(prefab!=null,"actual model prefab resolves: "+name);
                     var instance=Object.Instantiate(prefab,holder.transform,false);var components=instance.GetComponentsInChildren(processType,true);
                     Require(components.Length>0,"actual model retains BoneImplantProcess components: "+name,"components="+components.Length);
                     var destinations=new Dictionary<string,GameObject>();var targetField=processType.GetField("trfDst");

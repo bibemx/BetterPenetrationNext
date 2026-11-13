@@ -260,7 +260,7 @@
       "Section": "Next.Assets",
       "Key": "PreparedZipmod",
       "Type": "String",
-      "Value": "@game/mods/BetterPenetration/BPN.Reciever.Profundis.zipmod"
+      "Value": "@game/mods/BetterPenetration/[KKS][Body][BPN] Profundis.zipmod"
     },
     {
       "Section": "Next.Contact",

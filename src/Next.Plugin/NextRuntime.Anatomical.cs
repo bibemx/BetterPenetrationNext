@@ -56,6 +56,8 @@ namespace BetterPenetrationNext
         }
         void UpdateAnatomicalBody(PreparedBody body,int normalInterval,ref FrameMeasurement measurement)
         {
+            var channelDefinition=body.Package.Physical;var supportDefinition=body.Package.Support;
+            var channelTransfer=body.Package.Transfer;var channelProfile=body.Package.Profile;var channelContours=body.Package.Contours;
             Observation selected=null;
             foreach(var o in observations.Values)if(o.Target==body.Character&&Time.unscaledTime-o.LastSeen<=1&&o.Chain.Count>=2&&GuideTargetMatches(o.Agent.m_referenceTarget,body.Character.transform,requireMatchedGuideTarget.Value)){selected=o;break;}
             if(reactiveRig.Value){UpdateReactiveBody(body,selected,normalInterval,ref measurement);return;}
@@ -94,6 +96,9 @@ namespace BetterPenetrationNext
         }
         void UpdateReactiveBody(PreparedBody body,Observation selected,int normals,ref FrameMeasurement measurement)
         {
+            var channelDefinition=body.Package.Physical;var supportDefinition=body.Package.Support;
+            var channelTransfer=body.Package.Transfer;var channelContours=body.Package.Contours;
+            var reactiveTransfer=body.Package.ReactiveTransfer;var reactiveChart=body.Package.Chart;
             long start=Stopwatch.GetTimestamp();var animation=body.Animation;
             Vec3[] entrySource=selected==null?null:selected.SizedWorld;
             if(selected!=null)
@@ -127,6 +132,7 @@ namespace BetterPenetrationNext
             if(body.RigWorker!=null&&!backgroundRig.Value){body.RigWorker.Dispose();body.RigWorker=null;}
             else if(body.RigWorker==null&&backgroundRig.Value)body.RigWorker=new ReactiveRigWorker(body.ReactiveRig,channelDefinition.BoneNames.Length,channelDefinition.Morphs.Length,supportDefinition.Rest.Length,channelDefinition.Rest.Length,body.RigInput.Source.Length);
             var input=body.RigInput;Array.Copy(animation.CapturedLinear,input.Bones,input.Bones.Length);Array.Copy(animation.CapturedTranslation,input.Translation,input.Translation.Length);Array.Copy(animation.CapturedMorphs,input.Morph,input.Morph.Length);
+            int entryRoot=Array.IndexOf(channelDefinition.BoneNames,"MED_Pelvis");var entryCarrier=animation.CapturedLinear[entryRoot];input.EntranceContactDepth=body.ClosedEntrance==null?0:body.ClosedEntrance.ContactDepth*(entryCarrier.X.Length+entryCarrier.Y.Length+entryCarrier.Z.Length)/3;
             input.Frame=Time.frameCount;input.Dt=body.LastRigSubmitted>0?Math.Max(0,Time.unscaledTime-body.LastRigSubmitted):Math.Max(0,Time.unscaledDeltaTime);input.PosedSize=animation.PosedSize;input.MaxSource=Math.Max(0,contactSettings.MaxSourceDisplacement-(selected==null?0:selected.EntryTargetRig.MaximumDisplacement));input.MaxStrain=contactSettings.MaxTissueStrain;input.SourceCompliance=contactSettings.SourceCorrectionStrength;input.TissueStrength=contactSettings.TissueDeformationStrength;input.Compliance=contactSettings.TissueCompliance;input.Response=contactSettings.ContactDamping;input.Recovery=contactSettings.RecoveryTime;input.MaximumOffsetRatio=offset.Value;input.HasSource=selected!=null;input.SourceFollowsPath=pathMode.Value==PathMode.SourceFollowsPath;input.WholeSource=wholeSource.Value;input.CervixMaxDisplacement=Math.Max(0,Math.Min(.08,cervixMaxDisplacement.Value));input.CervixFollowStrength=Math.Max(0,Math.Min(1,cervixFollowStrength.Value));input.CanalLengthScale=Math.Max(1,Math.Min(1.5,canalLengthScale.Value));
             if(selected!=null){input.SourceRoot=AnimationAdapter.ToCore(selected.Chain[0].position);Array.Copy(selected.SizedWorld,input.Source,input.Source.Length);input.SourceFrame=SourceFrame(selected.Chain[0]);}
             bool updated=false;
@@ -164,6 +170,7 @@ namespace BetterPenetrationNext
                 body.RigSourceDeformation.Capture(body.RigSourceOffsets,contactSettings.MaxSourceDisplacement+body.SourceDimensions.MaximumOffset);selected.ContactBody.Offset=new Vec3();selected.ContactBody.RotationVector=new Vec3();selected.ContactBody.PreserveContactAcrossDeformation=true;selected.ContactBody.ApplyDeformation(body.RigSourceDeformation);if(result.Contacts>0)selected.ContactBody.MarkContact();
                 selected.CorrectionFrame=Time.frameCount;
             }
+            if(body.ClosedEntrance!=null)body.ClosedEntrance.Apply(body.Solver.Positions,input,result,body.RigOffsets,Time.unscaledDeltaTime);
             long apply=Stopwatch.GetTimestamp();body.Binding.ApplyControlOffsets(body.RigOffsets,input.PosedSize*offset.Value,normals,transition.Blend);body.SuccessfulFrames++;measurement.Solve+=(apply-start)*1000.0/Stopwatch.Frequency;measurement.Apply+=(Stopwatch.GetTimestamp()-apply)*1000.0/Stopwatch.Frequency;measurement.Vertices+=result.Physical.Length;measurement.Contacts+=result.Contacts;
             if(!body.PoseVerified&&body.SuccessfulFrames>=3&&transition.Blend>=.999){double error=body.Binding.VerifyAppliedControlOffsets(body.RigOffsets);body.PoseVerified=error<1e-4;log.LogInfo("NEXT_REACTIVE_NATIVE mappingError="+error+" verified="+body.PoseVerified+" resultAge="+(Time.frameCount-result.Frame));}
             if(debugTrajectory.Value)for(int i=1;i<result.Path.Length;i++)debugOverlay.Line(AnimationAdapter.ToUnity(result.Path[i-1]),AnimationAdapter.ToUnity(result.Path[i]),Color.green);
